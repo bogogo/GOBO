@@ -18,7 +18,7 @@ class HomePage extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.transparent,
-            title: const Text('Lights', style: TextStyle(fontWeight: FontWeight.w600)),
+            title: Image.asset('assets/brand/gobo_wordmark.png', height: 22, semanticLabel: 'GOBO'),
             actions: [
               IconButton(tooltip: 'All off', icon: const Icon(Icons.power_settings_new), onPressed: store.allOff),
               PopupMenuButton<String>(

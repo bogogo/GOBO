@@ -20,7 +20,7 @@ class GoboApp extends StatelessWidget {
       brightness: Brightness.dark,
     );
     return MaterialApp(
-      title: 'Gobo',
+      title: 'GOBO',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: scheme,
