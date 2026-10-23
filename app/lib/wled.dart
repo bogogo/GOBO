@@ -5,23 +5,35 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+import 'light_control.dart';
+
 /// One WLED controller on the local network, kept in sync over its WebSocket.
-class WledLight extends ChangeNotifier {
+class WledLight extends ChangeNotifier implements LightControl {
   WledLight({required this.host, String? name, this.demo = false}) : name = name ?? host;
 
   final String host;
 
   /// A pretend light for trying the app without hardware.
   final bool demo;
+  @override
   String name;
+  @override
   bool online = false;
+  @override
   bool on = false;
+  @override
   int brightness = 128; // 0-255
+  @override
   Color color = Colors.white;
+  @override
   int white = 0; // RGBW strips only
+  @override
   bool rgbw = false;
+  @override
   int effect = 0;
+  @override
   List<String> effects = const [];
+  @override
   Map<int, String> presets = const {};
 
   WebSocketChannel? _ws;
@@ -126,12 +138,14 @@ class WledLight extends ChangeNotifier {
     });
   }
 
+  @override
   void setOn(bool v) {
     on = v;
     notifyListeners();
     send({'on': v});
   }
 
+  @override
   void setBrightness(int v) {
     brightness = v;
     on = v > 0;
@@ -139,6 +153,7 @@ class WledLight extends ChangeNotifier {
     send({'on': on, 'bri': v});
   }
 
+  @override
   void setColor(Color c, {int? w}) {
     color = c;
     if (w != null) white = w;
@@ -153,12 +168,14 @@ class WledLight extends ChangeNotifier {
     effect = 0;
   }
 
+  @override
   void setEffect(int fx) {
     effect = fx;
     notifyListeners();
     send({'on': true, 'seg': [{'fx': fx}]});
   }
 
+  @override
   void applyPreset(int id) => send({'ps': id});
 
   @override

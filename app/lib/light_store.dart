@@ -1,18 +1,27 @@
+import 'dart:convert';
+
 import 'package:bonsoir/bonsoir.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'light_group.dart';
 import 'wled.dart';
 
 /// Finds WLED controllers via mDNS (_wled._tcp) and remembers manually added ones.
 class LightStore extends ChangeNotifier {
+  static const _demo = bool.fromEnvironment('DEMO');
+
   final Map<String, WledLight> lights = {};
+  final List<LightGroup> groups = [];
   BonsoirDiscovery? _discovery;
 
   Future<void> start() async {
-    if (const bool.fromEnvironment('DEMO')) return _startDemo();
+    if (_demo) return _startDemo();
     final prefs = await SharedPreferences.getInstance();
+    for (final g in jsonDecode(prefs.getString('groups') ?? '[]') as List) {
+      groups.add(LightGroup(id: g['id'], name: g['name'], hosts: List<String>.from(g['hosts']), store: this));
+    }
     for (final host in prefs.getStringList('hosts') ?? const <String>[]) {
       _add(host);
     }
@@ -58,7 +67,41 @@ class LightStore extends ChangeNotifier {
       light.addListener(notifyListeners);
       lights[name] = light;
     }
+    groups
+      ..add(LightGroup(id: 'down', name: 'Downstairs', hosts: ['Living room', 'Kitchen', 'TV backlight'], store: this))
+      ..add(LightGroup(id: 'up', name: 'Upstairs', hosts: ['Bedroom', 'Desk'], store: this));
     notifyListeners();
+  }
+
+  LightGroup createGroup(String name, List<String> hosts) {
+    final group = LightGroup(
+      id: DateTime.now().microsecondsSinceEpoch.toString(),
+      name: name,
+      hosts: hosts,
+      store: this,
+    );
+    groups.add(group);
+    _saveGroups();
+    return group;
+  }
+
+  void updateGroup(LightGroup group, String name, List<String> hosts) {
+    group
+      ..name = name
+      ..hosts = hosts;
+    _saveGroups();
+  }
+
+  void deleteGroup(LightGroup group) {
+    groups.remove(group);
+    _saveGroups();
+  }
+
+  Future<void> _saveGroups() async {
+    notifyListeners();
+    if (_demo) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('groups', jsonEncode([for (final g in groups) g.toJson()]));
   }
 
   Future<void> addManual(String host) => _add(host.trim(), remember: true);

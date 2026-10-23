@@ -48,7 +48,7 @@ Local network permissions (iOS/macOS Bonjour + local networking, Android clearte
 
 No lights yet? Run it with pretend lights: `flutter run -d chrome --dart-define=DEMO=true`.
 
-What it does: auto-discovers lights, tile grid with on/off and brightness, an All off button, and a detail page per light with color, saturation, white channel, swatches, scenes (WLED presets), and effects. Long-press a tile to forget it; tap + to add one by IP if discovery is blocked on your network.
+What it does: auto-discovers lights, tile grid with on/off and brightness, an All off button, groups (+ → New group; long-press a group to edit) that switch, dim and color several lights at once, and a detail page per light with color, saturation, white channel, swatches, scenes (WLED presets), and effects. Long-press a tile to forget it; tap + to add one by IP if discovery is blocked on your network.
 
 ## Button remote (`firmware/button_remote/`)
 

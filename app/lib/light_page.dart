@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'wled.dart';
+import 'light_control.dart';
 
 const _swatches = <Color>[
   Color(0xFFFFB46B), // warm white
@@ -17,8 +17,12 @@ const _swatches = <Color>[
 ];
 
 class LightPage extends StatelessWidget {
-  const LightPage({super.key, required this.light});
-  final WledLight light;
+  const LightPage({super.key, required this.light, this.subtitle, this.onEdit});
+  final LightControl light;
+
+  /// Shown under the title, e.g. the lights in a group.
+  final String? subtitle;
+  final VoidCallback? onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +33,15 @@ class LightPage extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.transparent,
-            title: Text(light.name),
-            actions: [Switch(value: light.on, onChanged: light.setOn), const SizedBox(width: 12)],
+            title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(light.name),
+              if (subtitle != null) Text(subtitle!, style: const TextStyle(fontSize: 13, color: Colors.white54)),
+            ]),
+            actions: [
+              if (onEdit != null) IconButton(tooltip: 'Edit group', icon: const Icon(Icons.edit_outlined), onPressed: onEdit),
+              Switch(value: light.on, onChanged: light.setOn),
+              const SizedBox(width: 12),
+            ],
           ),
           body: ListView(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
