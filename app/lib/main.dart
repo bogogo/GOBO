@@ -26,7 +26,12 @@ class GoboApp extends StatelessWidget {
         colorScheme: scheme,
         scaffoldBackgroundColor: const Color(0xFF0E0E10),
         useMaterial3: true,
-        sliderTheme: const SliderThemeData(trackHeight: 28, thumbShape: RoundSliderThumbShape(enabledThumbRadius: 0)),
+        sliderTheme: SliderThemeData(
+          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 0, disabledThumbRadius: 0, elevation: 0),
+          overlayShape: SliderComponentShape.noThumb,
+          padding: EdgeInsets.zero,
+          thumbColor: Colors.transparent,
+        ),
       ),
       home: HomePage(store: store),
     );

@@ -7,9 +7,12 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 /// One WLED controller on the local network, kept in sync over its WebSocket.
 class WledLight extends ChangeNotifier {
-  WledLight({required this.host, String? name}) : name = name ?? host;
+  WledLight({required this.host, String? name, this.demo = false}) : name = name ?? host;
 
   final String host;
+
+  /// A pretend light for trying the app without hardware.
+  final bool demo;
   String name;
   bool online = false;
   bool on = false;
@@ -30,6 +33,13 @@ class WledLight extends ChangeNotifier {
   Uri _uri(String path) => Uri.parse('http://$host$path');
 
   Future<void> connect() async {
+    if (demo) {
+      online = true;
+      effects = const ['Solid', 'Blink', 'Breathe', 'Wipe', 'Rainbow', 'Fire 2012', 'Aurora', 'Candle', 'Twinkle', 'Ocean'];
+      presets = const {1: 'Relax', 2: 'Bright', 3: 'Movie', 4: 'Party'};
+      notifyListeners();
+      return;
+    }
     try {
       final res = await http.get(_uri('/json')).timeout(const Duration(seconds: 4));
       final body = jsonDecode(res.body) as Map<String, dynamic>;
@@ -102,6 +112,7 @@ class WledLight extends ChangeNotifier {
 
   /// Sends a partial state update. Rapid slider changes are coalesced.
   void send(Map<String, dynamic> patch) {
+    if (demo) return;
     _pending = {..._pending, ...patch};
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 40), () {

@@ -1,4 +1,5 @@
 import 'package:bonsoir/bonsoir.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,6 +11,7 @@ class LightStore extends ChangeNotifier {
   BonsoirDiscovery? _discovery;
 
   Future<void> start() async {
+    if (const bool.fromEnvironment('DEMO')) return _startDemo();
     final prefs = await SharedPreferences.getInstance();
     for (final host in prefs.getStringList('hosts') ?? const <String>[]) {
       _add(host);
@@ -34,6 +36,29 @@ class LightStore extends ChangeNotifier {
     } catch (e) {
       debugPrint('mDNS discovery unavailable: $e');
     }
+  }
+
+  void _startDemo() {
+    const demo = [
+      ('Living room', true, 200, Color(0xFFFFB46B), true),
+      ('Kitchen', true, 255, Color(0xFFFFF1E0), true),
+      ('Bedroom', true, 70, Color(0xFFBF5AF2), false),
+      ('Desk', false, 150, Color(0xFF0A84FF), false),
+      ('TV backlight', true, 120, Color(0xFF00C7BE), false),
+      ('Porch', false, 180, Color(0xFFFF9500), true),
+    ];
+    for (final (name, on, bri, color, rgbw) in demo) {
+      final light = WledLight(host: name, name: name, demo: true)
+        ..on = on
+        ..brightness = bri
+        ..color = color
+        ..rgbw = rgbw
+        ..white = rgbw ? 120 : 0
+        ..connect();
+      light.addListener(notifyListeners);
+      lights[name] = light;
+    }
+    notifyListeners();
   }
 
   Future<void> addManual(String host) => _add(host.trim(), remember: true);
