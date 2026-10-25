@@ -52,11 +52,11 @@ def build():
     backdrop(y=1.5, color=(0.008, 0.009, 0.011))
     ortho_camera(6.4)
 
-    # each ring sways gently about the vertical axis, half a cycle apart
-    for ob, phase in ((warm, 0.0), (color, math.pi)):
-        steps = 24
+    # each ring makes one full turn about the vertical axis per loop, a quarter turn apart
+    for ob, phase in ((warm, 0.0), (color, math.pi / 2)):
+        steps = 8
         key_loop(ob, "rotation_euler", 2,
-                 [0.45 * math.sin(phase + 2 * math.pi * i / steps) for i in range(steps + 1)])
+                 [phase + 2 * math.pi * i / steps for i in range(steps + 1)])
         linear(ob)
 
     # colors flow around the color ring once per loop
