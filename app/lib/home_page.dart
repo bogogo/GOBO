@@ -4,6 +4,7 @@ import 'light_control.dart';
 import 'light_group.dart';
 import 'light_page.dart';
 import 'light_store.dart';
+import 'logo_background.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key, required this.store});
@@ -11,11 +12,14 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: store,
-      builder: (context, _) {
+    return Stack(children: [
+      const Positioned.fill(child: LogoBackground()),
+      ListenableBuilder(
+        listenable: store,
+        builder: (context, _) {
         final lights = store.lights.values.toList();
         return Scaffold(
+          backgroundColor: Colors.transparent,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             title: Image.asset('assets/brand/gobo_wordmark.png', height: 22, semanticLabel: 'GOBO'),
@@ -61,8 +65,9 @@ class HomePage extends StatelessWidget {
                   const SliverToBoxAdapter(child: SizedBox(height: 24)),
                 ]),
         );
-      },
-    );
+        },
+      ),
+    ]);
   }
 
   Widget _grid(List<Widget> tiles) => SliverPadding(
