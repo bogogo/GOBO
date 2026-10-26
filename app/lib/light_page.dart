@@ -17,12 +17,13 @@ const _swatches = <Color>[
 ];
 
 class LightPage extends StatelessWidget {
-  const LightPage({super.key, required this.light, this.subtitle, this.onEdit});
+  const LightPage({super.key, required this.light, this.subtitle, this.onEdit, this.editTooltip = 'Edit group'});
   final LightControl light;
 
   /// Shown under the title, e.g. the lights in a group.
   final String? subtitle;
   final VoidCallback? onEdit;
+  final String editTooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +39,7 @@ class LightPage extends StatelessWidget {
               if (subtitle != null) Text(subtitle!, style: const TextStyle(fontSize: 13, color: Colors.white54)),
             ]),
             actions: [
-              if (onEdit != null) IconButton(tooltip: 'Edit group', icon: const Icon(Icons.edit_outlined), onPressed: onEdit),
+              if (onEdit != null) IconButton(tooltip: editTooltip, icon: const Icon(Icons.edit_outlined), onPressed: onEdit),
               Switch(value: light.on, onChanged: light.setOn),
               const SizedBox(width: 12),
             ],
