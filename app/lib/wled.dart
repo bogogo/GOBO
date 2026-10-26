@@ -179,15 +179,34 @@ class WledLight extends ChangeNotifier implements LightControl {
   void applyPreset(int id) => send({'ps': id});
 
   /// Renames the controller itself, so every device running the app sees the new name.
-  Future<void> rename(String newName) async {
+  /// Returns false if the controller didn't keep the new name.
+  Future<bool> rename(String newName) async {
     name = newName;
     notifyListeners();
+    if (demo) return true;
+    try {
+      await http
+          .post(_uri('/json/cfg'),
+              headers: {'Content-Type': 'application/json'},
+              body: jsonEncode({
+                'id': {'name': newName}
+              }))
+          .timeout(const Duration(seconds: 4));
+      await refreshInfo();
+      return name == newName;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Re-reads the controller's name and LED type, e.g. after another device renamed it.
+  Future<void> refreshInfo() async {
     if (demo) return;
-    await http.post(_uri('/json/cfg'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'id': {'name': newName}
-        }));
+    try {
+      final res = await http.get(_uri('/json/info')).timeout(const Duration(seconds: 4));
+      _applyInfo(jsonDecode(res.body));
+      notifyListeners();
+    } catch (_) {}
   }
 
   @override

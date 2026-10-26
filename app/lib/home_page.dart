@@ -124,7 +124,13 @@ class HomePage extends StatelessWidget {
         ],
       ),
     );
-    if (name != null && name.trim().isNotEmpty) light.rename(name.trim());
+    if (name == null || name.trim().isEmpty) return;
+    final saved = await light.rename(name.trim());
+    if (!saved && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("${light.name} didn't save the new name. Check it's switched on and try again.")),
+      );
+    }
   }
 
   Future<void> _addDialog(BuildContext context) async {
