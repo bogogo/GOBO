@@ -5,6 +5,7 @@ import 'light_group.dart';
 import 'light_page.dart';
 import 'light_store.dart';
 import 'logo_background.dart';
+import 'wled.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key, required this.store});
@@ -58,7 +59,13 @@ class HomePage extends StatelessWidget {
                       _LightTile(
                         light: l,
                         icon: Icons.lightbulb,
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => LightPage(light: l))),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(
+                            builder: (ctx) => LightPage(
+                              light: l,
+                              editTooltip: 'Rename light',
+                              onEdit: () => _renameDialog(ctx, l),
+                            ),
+                          )),
                         onLongPress: () => store.remove(l.host),
                       ),
                   ]),
@@ -97,6 +104,33 @@ class HomePage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _renameDialog(BuildContext context, WledLight light) async {
+    final ctrl = TextEditingController(text: light.name);
+    final name = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Rename light'),
+        content: TextField(
+          controller: ctrl,
+          autofocus: true,
+          textCapitalization: TextCapitalization.sentences,
+          onSubmitted: (v) => Navigator.pop(ctx, v),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          FilledButton(onPressed: () => Navigator.pop(ctx, ctrl.text), child: const Text('Save')),
+        ],
+      ),
+    );
+    if (name == null || name.trim().isEmpty) return;
+    final saved = await light.rename(name.trim());
+    if (!saved && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("${light.name} didn't save the new name. Check it's switched on and try again.")),
+      );
+    }
   }
 
   Future<void> _addDialog(BuildContext context) async {

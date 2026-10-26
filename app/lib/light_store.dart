@@ -1,8 +1,7 @@
 import 'dart:convert';
 
 import 'package:bonsoir/bonsoir.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'light_group.dart';
@@ -18,6 +17,12 @@ class LightStore extends ChangeNotifier {
 
   Future<void> start() async {
     if (_demo) return _startDemo();
+    // Pick up names changed from another device whenever the app comes back to the front.
+    AppLifecycleListener(onResume: () {
+      for (final l in lights.values) {
+        l.refreshInfo();
+      }
+    });
     final prefs = await SharedPreferences.getInstance();
     for (final g in jsonDecode(prefs.getString('groups') ?? '[]') as List) {
       groups.add(LightGroup(id: g['id'], name: g['name'], hosts: List<String>.from(g['hosts']), store: this));
