@@ -18,6 +18,8 @@ jobs:
       - name: Build
         working-directory: app
         run: |
+          # Mixing Swift packages and CocoaPods breaks video_player's build here, so use CocoaPods only.
+          flutter config --no-enable-swift-package-manager
           flutter pub get
           flutter build macos --release
       - name: Zip
